@@ -1,0 +1,8 @@
+node_modules/
+# Archivo activo de clasp: se genera con `npm run env:test`. Nunca se versiona.
+.clasp.json
+# Credenciales de clasp (token OAuth). Nunca se versionan.
+.clasprc.json
+# Valores reales de Script Properties
+config/*.local.json
+.DS_Store

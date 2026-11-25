@@ -1,0 +1,62 @@
+<script>
+  (function () {
+    var $ = function (id) { return document.getElementById(id); };
+
+    function setText(id, text, cls) {
+      var el = $(id); el.textContent = text; el.className = cls || '';
+    }
+
+    function link(href, label) {
+      var a = document.createElement('a'); a.href = href; a.textContent = label; a.target = '_blank'; a.rel = 'noopener';
+      return a;
+    }
+
+    function renderStatus(s) {
+      if (s.error) { setText('connection', s.error, 'bad'); return; }
+      setText('env', s.env || 'Sin configurar');
+      setText('user', s.activeUser || 'desconocido');
+      setText('connection', (s.connection.ok ? 'Conectado. ' : 'Sin conexión. ') + s.connection.detail, s.connection.ok ? 'ok' : 'bad');
+      var links = $('links'); links.textContent = '';
+      if (s.rootFolderUrl) links.appendChild(link(s.rootFolderUrl, 'Carpeta TEST'));
+      if (s.registryUrl) { links.appendChild(document.createTextNode(' · ')); links.appendChild(link(s.registryUrl, 'Hoja de registro')); }
+      if (!links.childNodes.length) links.textContent = '—';
+    }
+
+    function renderTest(r) {
+      var box = $('test-result'); box.textContent = ''; box.className = '';
+      if (r.error) { setText('test-result', r.error, 'bad'); return; }
+      var head = document.createElement('p');
+      head.className = r.passed ? 'ok' : 'bad';
+      head.textContent = (r.passed ? 'Prueba superada' : 'Prueba con fallas') + ': ' + r.ok + '/' + r.total + ' pasos (' + r.timestamp + ')';
+      box.appendChild(head);
+      var ol = document.createElement('ol');
+      r.steps.forEach(function (s) {
+        var li = document.createElement('li');
+        li.textContent = (s.ok ? '✓ ' : '✗ ') + s.name + (s.detail ? ' — ' + s.detail : '');
+        li.className = s.ok ? '' : 'bad';
+        ol.appendChild(li);
+      });
+      box.appendChild(ol);
+      if (r.folderUrl) box.appendChild(link(r.folderUrl, 'Abrir carpeta de prueba'));
+      if (r.sheetUrl) { box.appendChild(document.createTextNode(' · ')); box.appendChild(link(r.sheetUrl, 'Abrir hoja de prueba')); }
+    }
+
+    function fail(id) { return function (e) { setText(id, 'Error: ' + (e && e.message ? e.message : e), 'bad'); }; }
+
+    function loadStatus() {
+      setText('connection', 'Cargando…');
+      google.script.run.withSuccessHandler(renderStatus).withFailureHandler(fail('connection')).api_getStatus();
+    }
+
+    $('refresh').addEventListener('click', loadStatus);
+    $('run-test').addEventListener('click', function () {
+      var btn = this; btn.disabled = true; setText('test-result', 'Ejecutando…', 'muted');
+      google.script.run
+        .withSuccessHandler(function (r) { btn.disabled = false; renderTest(r); loadStatus(); })
+        .withFailureHandler(function (e) { btn.disabled = false; fail('test-result')(e); })
+        .api_runIntegrationTest();
+    });
+
+    loadStatus();
+  })();
+</script>

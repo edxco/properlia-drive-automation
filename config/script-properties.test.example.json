@@ -1,0 +1,7 @@
+{
+  "_nota": "Referencia de Script Properties del proyecto Properlia [TEST]. Se capturan a mano en Apps Script > Configuración del proyecto > Propiedades de la secuencia de comandos. No poner valores reales en este archivo.",
+  "ENV": "TEST",
+  "ALLOWED_USER_EMAIL": "usuario.autorizado@kwmexico.mx",
+  "ROOT_FOLDER_ID": "(lo escribe setupTestEnvironment)",
+  "REGISTRY_SHEET_ID": "(lo escribe setupTestEnvironment)"
+}

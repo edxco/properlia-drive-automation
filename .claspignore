@@ -1,0 +1,3 @@
+# rootDir = src. Solo se suben .js, .html y appsscript.json
+**/*.md
+**/.DS_Store

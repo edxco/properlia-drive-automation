@@ -1,0 +1,15 @@
+{
+  "name": "properlia-automatizacion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Properlia - automatización documental en Google Apps Script (entorno TEST)",
+  "scripts": {
+    "env:test": "node scripts/use-env.js test",
+    "status:test": "node scripts/use-env.js test && clasp status",
+    "push:test": "npm test && node scripts/use-env.js test && clasp push",
+    "pull:test": "node scripts/use-env.js test && clasp pull",
+    "check": "node scripts/check-syntax.js",
+    "test": "node scripts/check-syntax.js && node --test tests/unit/*.test.js"
+  },
+  "engines": { "node": ">=18" }
+}

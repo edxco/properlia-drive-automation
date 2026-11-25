@@ -1,0 +1,5 @@
+{
+  "_nota": "Plantilla para una fase futura. PROD será un proyecto Apps Script distinto. No crear clasp.prod.json hasta que se autorice.",
+  "scriptId": "NO_CONFIGURADO",
+  "rootDir": "src"
+}

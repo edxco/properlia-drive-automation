@@ -21,8 +21,8 @@ test('incluye versión y todos los códigos del catálogo', () => {
 });
 
 test('marca BONA y CMED como nuevos e IND como reservado', () => {
-  assert.match(md, /\| `BONA` \| Bodega o nave \| Bodega o nave \| Nuevo en 2026\.1 \|/);
-  assert.match(md, /\| `CMED` \| Consultorio \| Consultorio \| Nuevo en 2026\.1 \|/);
+  assert.match(md, /\| `BONA` \| Bodega o nave \| Bodega o nave \| `37beb05a-ff6a-4138-8959-c2c9be60e6f5` \| Nuevo en 2026\.1 \|/);
+  assert.match(md, /\| `CMED` \| Consultorio \| Consultorio \| `7f91886c-4822-4a9d-9f44-867c8702951b` \| Nuevo en 2026\.1 \|/);
   assert.match(md, /\| `IND` \| Industrial \|/);
 });
 
@@ -34,4 +34,12 @@ test('un cambio en el catálogo cambia el documento (la prueba detecta desincron
   const alterado = JSON.parse(JSON.stringify(C));
   alterado.zones.push({ code: 'TST', name: 'Zona de prueba', formValue: 'Zona de prueba' });
   assert.notEqual(buildMarkdown(alterado), md);
+});
+
+test('incluye los IDs de opción, la regla simultánea y el historial de versiones', () => {
+  for (const list of [C.origins, C.modalities, C.types, C.zones]) {
+    for (const x of list) assert.ok(md.includes('`' + x.formOptionId + '`'), x.formOptionId);
+  }
+  assert.match(md, /se registra una sola vez como Venta \(`LV`\)/);
+  for (const c of C.changelog) assert.ok(md.includes(`| ${c.version} | ${c.date} |`), c.version);
 });

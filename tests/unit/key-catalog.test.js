@@ -12,7 +12,7 @@ const pairs = (list) => json(list.map((x) => [x.code, x.name]));
 const codes = (list) => list.map((x) => x.code);
 
 test('versión y fecha de aprobación', () => {
-  assert.equal(C.version, '2026.1');
+  assert.equal(C.version, '2026.2');
   assert.equal(C.approvedOn, '2026-11-26');
 });
 
@@ -102,4 +102,49 @@ test('el catálogo es inmutable en tiempo de ejecución', () => {
   assert.ok(Object.isFrozen(C.types));
   assert.ok(Object.isFrozen(C.types[0]));
   assert.ok(Object.isFrozen(C.format.suffix));
+});
+
+// ---------- T6: versión 2026.2 — IDs del formulario (G-4) y comercialización simultánea (G-6) ----------
+
+const ids = (list) => json(list.map((x) => [x.code || x.name, x.formOptionId]));
+
+test('historial de versiones: 2026.1 y 2026.2, la última coincide con la versión', () => {
+  assert.equal(json(C.changelog.map((c) => c.version)), json(['2026.1', '2026.2']));
+  assert.equal(C.changelog[C.changelog.length - 1].version, C.version);
+});
+
+test('IDs de tipos según la especificación (G-4)', () => {
+  assert.equal(ids(C.types), json([
+    ['DEP', '0221da24-d7df-4052-a63d-2d16501ec360'], ['CASA', '6431658b-1ebc-4805-ac61-97bf39699353'],
+    ['TER', '23d3905f-a5c1-4372-995e-362b2c10f77f'], ['LOC', '044af3c1-7cea-4ec5-86e7-07b10afdb147'],
+    ['BONA', '37beb05a-ff6a-4138-8959-c2c9be60e6f5'], ['CMED', '7f91886c-4822-4a9d-9f44-867c8702951b'],
+    ['OF', '1b89a6d4-83e3-4c55-9852-64f33060d034']
+  ]));
+});
+
+test('IDs de modalidades confirmados por el usuario (G-4)', () => {
+  assert.equal(ids(C.modalities), json([
+    ['Preventa', 'a7f8e2d1-3c4b-5a6e-9f8d-7c1b2a3e4f5d'],
+    ['Venta', 'b8e9f3d2-4c5a-6b7e-0f9e-8d2c3b4e5f6a'],
+    ['Renta', 'c9f0e4d3-5c6b-7a8e-1f0e-9d3c4b5e6f7b']
+  ]));
+});
+
+test('IDs consecutivos de origen y zona, en el orden del catálogo', () => {
+  C.origins.forEach((o, i) => assert.equal(o.formOptionId, `origen-${String(i + 1).padStart(2, '0')}`));
+  C.zones.forEach((z, i) => assert.equal(z.formOptionId, `zona-${String(i + 1).padStart(2, '0')}`));
+  assert.equal(C.zones.find((z) => z.code === 'SJO').formOptionId, 'zona-13');
+});
+
+test('todos los IDs de formulario existen y son únicos en todo el catálogo', () => {
+  const all = ['origins', 'modalities', 'types', 'zones'].flatMap((n) => C[n].map((x) => x.formOptionId));
+  assert.ok(all.every((x) => typeof x === 'string' && x.length > 0));
+  assert.equal(new Set(all.map((x) => x.toLowerCase())).size, all.length);
+});
+
+test('regla de comercialización simultánea: se registra como Venta (LV)', () => {
+  assert.equal(C.simultaneousOffer.registerAs, 'Venta');
+  assert.equal(C.simultaneousOffer.operation, 'LV');
+  const venta = C.modalities.find((m) => m.name === C.simultaneousOffer.registerAs);
+  assert.equal(venta.operation, C.simultaneousOffer.operation);
 });

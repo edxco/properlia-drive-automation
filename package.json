@@ -9,7 +9,11 @@
     "push:test": "npm test && node scripts/use-env.js test && clasp push",
     "pull:test": "node scripts/use-env.js test && clasp pull",
     "check": "node scripts/check-syntax.js",
-    "test": "node scripts/check-syntax.js && node --test tests/unit/*.test.js"
+    "test": "node scripts/check-syntax.js && node --test tests/unit/*.test.js",
+    "docs:keys": "node scripts/build-key-docs.js",
+    "docs:check": "node scripts/build-key-docs.js --check"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }
